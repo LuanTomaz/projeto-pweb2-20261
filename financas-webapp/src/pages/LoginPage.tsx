@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { SyntheticEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
 import { login } from '../features/auth/authSlice'
 
 function LoginPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const { loading, error } = useSelector((state: RootState) => state.auth)
+  const navigate = useNavigate()
+  const { loading, error, token } = useSelector((state: RootState) => state.auth)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -23,6 +25,12 @@ function LoginPage() {
     setFormError('')
     dispatch(login({ username, password }))
   }
+
+  useEffect(() => {
+    if (token) {
+      navigate('/')
+    }
+  }, [token, navigate])
 
   return (
     <main>

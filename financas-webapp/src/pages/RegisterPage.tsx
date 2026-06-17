@@ -1,12 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { SyntheticEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
 import { register } from '../features/auth/authSlice'
 
 function RegisterPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const { loading, error } = useSelector((state: RootState) => state.auth)
+  const navigate = useNavigate()
+
+  const { loading, error, token } = useSelector(
+    (state: RootState) => state.auth,
+  )
 
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
@@ -24,6 +29,12 @@ function RegisterPage() {
     setFormError('')
     dispatch(register({ name, username, password }))
   }
+
+  useEffect(() => {
+    if (token) {
+      navigate('/')
+    }
+  }, [token, navigate])
 
   return (
     <main>
