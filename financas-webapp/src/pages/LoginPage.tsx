@@ -8,7 +8,10 @@ import { login } from '../features/auth/authSlice'
 function LoginPage() {
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
-  const { loading, error, token } = useSelector((state: RootState) => state.auth)
+
+  const { loading, error, token } = useSelector(
+    (state: RootState) => state.auth,
+  )
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -19,6 +22,18 @@ function LoginPage() {
 
     if (!username.trim() || !password.trim()) {
       setFormError('Preencha email e senha.')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!emailRegex.test(username)) {
+      setFormError('Informe um email válido.')
+      return
+    }
+
+    if (password.length < 6) {
+      setFormError('A senha deve possuir pelo menos 6 caracteres.')
       return
     }
 
@@ -42,6 +57,7 @@ function LoginPage() {
           <input
             id="username"
             type="email"
+            required
             value={username}
             onChange={(event) => setUsername(event.target.value)}
           />
@@ -52,6 +68,7 @@ function LoginPage() {
           <input
             id="password"
             type="password"
+            required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />

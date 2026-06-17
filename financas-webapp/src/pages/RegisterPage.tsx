@@ -26,6 +26,23 @@ function RegisterPage() {
       return
     }
 
+    if (name.trim().length < 3) {
+      setFormError('O nome deve possuir pelo menos 3 caracteres.')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!emailRegex.test(username)) {
+      setFormError('Informe um email válido.')
+      return
+    }
+
+    if (password.length < 6) {
+      setFormError('A senha deve possuir pelo menos 6 caracteres.')
+      return
+    }
+
     setFormError('')
     dispatch(register({ name, username, password }))
   }
@@ -46,6 +63,8 @@ function RegisterPage() {
           <input
             id="name"
             type="text"
+            required
+            minLength={3}
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
@@ -56,6 +75,7 @@ function RegisterPage() {
           <input
             id="username"
             type="email"
+            required
             value={username}
             onChange={(event) => setUsername(event.target.value)}
           />
@@ -66,6 +86,8 @@ function RegisterPage() {
           <input
             id="password"
             type="password"
+            required
+            minLength={6}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
