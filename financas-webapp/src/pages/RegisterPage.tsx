@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { SyntheticEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
 import { register } from '../features/auth/authSlice'
@@ -98,6 +98,9 @@ function RegisterPage() {
         <button type="submit" disabled={loading}>
           {loading ? 'Cadastrando...' : 'Cadastrar'}
         </button>
+        <p>
+          Já possui conta? <Link to="/login">Entrar</Link>
+        </p>
       </form>
     </main>
   )
