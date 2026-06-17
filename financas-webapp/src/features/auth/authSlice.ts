@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
-const API_URL = 'http://localhost:8080'
+const API_URL = '/api'
 
 interface AuthUser {
   id: number
