@@ -16,7 +16,7 @@ function getToday() {
 function NewTransactionPage() {
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
-  const { categories, creating, error } = useSelector(
+  const { categories, categoriesLoading, creating, error } = useSelector(
     (state: RootState) => state.transactions,
   )
 
@@ -70,7 +70,7 @@ function NewTransactionPage() {
       <section className="page-header">
         <div>
           <span className="eyebrow">Novo registro</span>
-          <h1>Registrar transacao</h1>
+          <h1>Registrar transação</h1>
           <p>
             Cadastre uma receita ou despesa com valor, categoria, data e
             detalhes opcionais.
@@ -84,7 +84,7 @@ function NewTransactionPage() {
 
       <section className="content-panel form-panel form-studio">
         <aside className="form-insight">
-          <span>Lancamento</span>
+          <span>Lançamento</span>
           <strong>{type === 'INCOME' ? 'Receita' : 'Despesa'}</strong>
           <p>
             Valor previsto: {amount ? `R$ ${Number(amount).toFixed(2)}` : 'R$ 0,00'}
@@ -136,10 +136,20 @@ function NewTransactionPage() {
               <select
                 id="category"
                 required
+                disabled={categoriesLoading || categories.length === 0}
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
               >
-                <option value="">Selecione</option>
+                <option value="">
+                  {categoriesLoading
+                    ? 'Carregando categorias...'
+                    : 'Selecione'}
+                </option>
+                {!categoriesLoading && categories.length === 0 && (
+                  <option value="" disabled>
+                    Nenhuma categoria encontrada
+                  </option>
+                )}
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -172,7 +182,7 @@ function NewTransactionPage() {
           </div>
 
           <div className="field">
-            <label htmlFor="description">Descricao</label>
+            <label htmlFor="description">Descrição</label>
             <textarea
               id="description"
               rows={4}
@@ -186,8 +196,12 @@ function NewTransactionPage() {
             <p className="feedback feedback-error">{formError || error}</p>
           )}
 
-          <button className="primary-action" type="submit" disabled={creating}>
-            {creating ? 'Registrando...' : 'Registrar transacao'}
+          <button
+            className="primary-action"
+            type="submit"
+            disabled={creating || categoriesLoading || categories.length === 0}
+          >
+            {creating ? 'Registrando...' : 'Registrar transação'}
           </button>
         </form>
       </section>

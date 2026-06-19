@@ -1,7 +1,7 @@
 import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import type { AppDispatch, RootState } from './app/store'
-import { logout } from './features/auth/authSlice'
+import { useSelector } from 'react-redux'
+import type { RootState } from './app/store'
+import DashboardPage from './pages/DashboardPage'
 import EditTransactionPage from './pages/EditTransactionPage'
 import LoginPage from './pages/LoginPage'
 import NewTransactionPage from './pages/NewTransactionPage'
@@ -9,29 +9,6 @@ import RegisterPage from './pages/RegisterPage'
 import TransactionsPage from './pages/TransactionsPage'
 import ProtectedRoute from './routes/ProtectedRoute'
 import './App.css'
-
-function HomePage() {
-  const dispatch = useDispatch<AppDispatch>()
-  const user = useSelector((state: RootState) => state.auth.user)
-
-  function handleLogout() {
-    dispatch(logout())
-  }
-
-  return (
-    <main>
-      <h1>Dashboard Financeiro</h1>
-
-      {user && <p>Olá, {user.name}!</p>}
-
-      <p>Usuário autenticado.</p>
-
-      <button type="button" onClick={handleLogout}>
-        Sair
-      </button>
-    </main>
-  )
-}
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -69,7 +46,7 @@ function App() {
           path="/"
           element={
             <PrivatePage>
-              <HomePage />
+              <DashboardPage />
             </PrivatePage>
           }
         />

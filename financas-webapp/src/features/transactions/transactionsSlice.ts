@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '../../app/store'
 
 const API_URL = '/api'
@@ -8,6 +8,12 @@ export type TransactionType = 'INCOME' | 'EXPENSE'
 export interface Category {
   id: number
   name: string
+}
+
+interface CategoriesResponse {
+  content?: Category[]
+  categories?: Category[]
+  data?: Category[]
 }
 
 export interface Transaction {
@@ -31,6 +37,11 @@ interface TransactionsPageResponse {
   last: boolean
 }
 
+interface FetchTransactionsParams {
+  page?: number
+  size?: number
+}
+
 export interface CreateTransactionData {
   amount: number
   type: TransactionType
@@ -46,6 +57,7 @@ export interface UpdateTransactionData extends CreateTransactionData {
 
 interface TransactionsState {
   categories: Category[]
+  categoriesLoading: boolean
   transactions: Transaction[]
   selectedTransaction: Transaction | null
   page: number
@@ -61,6 +73,7 @@ interface TransactionsState {
 
 const initialState: TransactionsState = {
   categories: [],
+  categoriesLoading: false,
   transactions: [],
   selectedTransaction: null,
   page: 0,
@@ -90,6 +103,26 @@ function authHeaders(token: string) {
   }
 }
 
+function parseCategories(data: Category[] | CategoriesResponse) {
+  if (Array.isArray(data)) {
+    return data
+  }
+
+  if (Array.isArray(data.content)) {
+    return data.content
+  }
+
+  if (Array.isArray(data.categories)) {
+    return data.categories
+  }
+
+  if (Array.isArray(data.data)) {
+    return data.data
+  }
+
+  return []
+}
+
 export const fetchCategories = createAsyncThunk<
   Category[],
   void,
@@ -112,7 +145,7 @@ export const fetchCategories = createAsyncThunk<
       )
     }
 
-    return await response.json()
+    return parseCategories(await response.json())
   } catch {
     return rejectWithValue('Nao foi possivel conectar a API.')
   }
@@ -120,11 +153,11 @@ export const fetchCategories = createAsyncThunk<
 
 export const fetchTransactions = createAsyncThunk<
   TransactionsPageResponse,
-  number | undefined,
+  number | FetchTransactionsParams | undefined,
   { state: RootState; rejectValue: string }
 >(
   'transactions/fetchTransactions',
-  async (page = 0, { getState, rejectWithValue }) => {
+  async (params = 0, { getState, rejectWithValue }) => {
     const token = getState().auth.token
 
     if (!token) {
@@ -132,13 +165,16 @@ export const fetchTransactions = createAsyncThunk<
     }
 
     try {
-      const params = new URLSearchParams({
+      const page = typeof params === 'number' ? params : params.page || 0
+      const size = typeof params === 'number' ? 10 : params.size || 10
+
+      const queryParams = new URLSearchParams({
         page: String(page),
-        size: '10',
+        size: String(size),
         sort: 'date,desc',
       })
 
-      const response = await fetch(`${API_URL}/transactions?${params}`, {
+      const response = await fetch(`${API_URL}/transactions?${queryParams}`, {
         headers: authHeaders(token),
       })
 
@@ -229,7 +265,7 @@ export const updateTransaction = createAsyncThunk<
     const token = getState().auth.token
 
     if (!token) {
-      return rejectWithValue('Sessao expirada. Faca login novamente.')
+      return rejectWithValue('Sessão expirada. Faca login novamente.')
     }
 
     try {
@@ -295,12 +331,15 @@ const transactionsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategories.pending, (state) => {
+        state.categoriesLoading = true
         state.error = null
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.categoriesLoading = false
         state.categories = action.payload
       })
       .addCase(fetchCategories.rejected, (state, action) => {
+        state.categoriesLoading = false
         state.error = action.payload || 'Erro ao carregar categorias.'
       })
       .addCase(fetchTransactions.pending, (state) => {
@@ -377,5 +416,80 @@ const transactionsSlice = createSlice({
 })
 
 export const { clearTransactionError } = transactionsSlice.actions
+
+export const selectTransactions = (state: RootState) =>
+  state.transactions.transactions
+
+export const selectTransactionsLoading = (state: RootState) =>
+  state.transactions.loading
+
+export const selectTransactionsError = (state: RootState) =>
+  state.transactions.error
+
+export const selectCurrentBalance = createSelector(
+  [selectTransactions],
+  (transactions) =>
+    transactions.reduce((balance, transaction) => {
+      if (transaction.type === 'INCOME') {
+        return balance + transaction.amount
+      }
+
+      return balance - transaction.amount
+    }, 0),
+)
+
+export const selectMonthlyIncomeTotal = createSelector(
+  [selectTransactions],
+  (transactions) => {
+    const today = new Date()
+    const currentMonth = today.getMonth()
+    const currentYear = today.getFullYear()
+
+    return transactions
+      .filter((transaction) => {
+        const transactionDate = new Date(`${transaction.date}T00:00:00`)
+
+        return (
+          transaction.type === 'INCOME' &&
+          transactionDate.getMonth() === currentMonth &&
+          transactionDate.getFullYear() === currentYear
+        )
+      })
+      .reduce((total, transaction) => total + transaction.amount, 0)
+  },
+)
+
+export const selectMonthlyExpenseTotal = createSelector(
+  [selectTransactions],
+  (transactions) => {
+    const today = new Date()
+    const currentMonth = today.getMonth()
+    const currentYear = today.getFullYear()
+
+    return transactions
+      .filter((transaction) => {
+        const transactionDate = new Date(`${transaction.date}T00:00:00`)
+
+        return (
+          transaction.type === 'EXPENSE' &&
+          transactionDate.getMonth() === currentMonth &&
+          transactionDate.getFullYear() === currentYear
+        )
+      })
+      .reduce((total, transaction) => total + transaction.amount, 0)
+  },
+)
+
+export const selectRecentTransactions = createSelector(
+  [selectTransactions],
+  (transactions) =>
+    [...transactions]
+      .sort(
+        (current, next) =>
+          new Date(`${next.date}T00:00:00`).getTime() -
+          new Date(`${current.date}T00:00:00`).getTime(),
+      )
+      .slice(0, 5),
+)
 
 export default transactionsSlice.reducer

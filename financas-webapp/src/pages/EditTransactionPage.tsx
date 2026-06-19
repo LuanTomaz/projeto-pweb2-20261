@@ -14,7 +14,14 @@ function EditTransactionPage() {
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const { transactionId } = useParams()
-  const { categories, selectedTransaction, loading, updating, error } =
+  const {
+    categories,
+    categoriesLoading,
+    selectedTransaction,
+    loading,
+    updating,
+    error,
+  } =
     useSelector((state: RootState) => state.transactions)
 
   const [amount, setAmount] = useState('')
@@ -84,8 +91,8 @@ function EditTransactionPage() {
     <main className="app-shell">
       <section className="page-header">
         <div>
-          <span className="eyebrow">Edicao</span>
-          <h1>Editar transacao</h1>
+          <span className="eyebrow">Edição</span>
+          <h1>Editar transação</h1>
           <p>Ajuste valor, categoria, data ou detalhes do registro financeiro.</p>
         </div>
 
@@ -96,11 +103,11 @@ function EditTransactionPage() {
 
       <section className="content-panel form-panel form-studio">
         {loading && !selectedTransaction ? (
-          <p className="empty-state">Carregando transacao...</p>
+          <p className="empty-state">Carregando transação...</p>
         ) : (
           <>
             <aside className="form-insight">
-              <span>Alteracao</span>
+              <span>Alteração</span>
               <strong>{type === 'INCOME' ? 'Receita' : 'Despesa'}</strong>
               <p>
                 Valor atual:{' '}
@@ -152,10 +159,20 @@ function EditTransactionPage() {
                   <select
                     id="category"
                     required
+                    disabled={categoriesLoading || categories.length === 0}
                     value={categoryId}
                     onChange={(event) => setCategoryId(event.target.value)}
                   >
-                    <option value="">Selecione</option>
+                    <option value="">
+                      {categoriesLoading
+                        ? 'Carregando categorias...'
+                        : 'Selecione'}
+                    </option>
+                    {!categoriesLoading && categories.length === 0 && (
+                      <option value="" disabled>
+                        Nenhuma categoria encontrada
+                      </option>
+                    )}
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
@@ -188,7 +205,7 @@ function EditTransactionPage() {
               </div>
 
               <div className="field">
-                <label htmlFor="description">Descricao</label>
+                <label htmlFor="description">Descrição</label>
                 <textarea
                   id="description"
                   rows={4}
@@ -202,8 +219,14 @@ function EditTransactionPage() {
                 <p className="feedback feedback-error">{formError || error}</p>
               )}
 
-              <button className="primary-action" type="submit" disabled={updating}>
-                {updating ? 'Salvando...' : 'Salvar alteracoes'}
+              <button
+                className="primary-action"
+                type="submit"
+                disabled={
+                  updating || categoriesLoading || categories.length === 0
+                }
+              >
+                {updating ? 'Salvando...' : 'Salvar alterações'}
               </button>
             </form>
           </>
