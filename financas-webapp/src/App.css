@@ -788,6 +788,23 @@ main:not(.app-shell) form p {
   gap: 3px;
 }
 
+.filter-row {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  margin: 24px 0;
+}
+
+.filter-row .field {
+  display: grid;
+  gap: 8px;
+}
+
+.filter-row input,
+.filter-row select {
+  width: 100%;
+}
+
 .toolbar-row strong {
   color: var(--text-h);
 }

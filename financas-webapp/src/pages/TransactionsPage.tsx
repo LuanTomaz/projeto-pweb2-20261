@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '../app/store'
 import {
   deleteTransaction,
+  fetchCategories,
   fetchTransactions,
 } from '../features/transactions/transactionsSlice'
 import type { TransactionType } from '../features/transactions/transactionsSlice'
@@ -25,6 +26,7 @@ const typeLabels: Record<TransactionType, string> = {
 function TransactionsPage() {
   const dispatch = useDispatch<AppDispatch>()
   const {
+    categories,
     transactions,
     loading,
     error,
@@ -34,7 +36,41 @@ function TransactionsPage() {
     deletingId,
   } = useSelector((state: RootState) => state.transactions)
 
-  const totals = transactions.reduce(
+  const [searchTerm, setSearchTerm] = useState('')
+  const [typeFilter, setTypeFilter] = useState<TransactionType | ''>('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+
+  useEffect(() => {
+    dispatch(fetchCategories())
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch(
+      fetchTransactions({
+        page: 0,
+        type: typeFilter || undefined,
+        categoryId: categoryFilter ? Number(categoryFilter) : undefined,
+      }),
+    )
+  }, [dispatch, typeFilter, categoryFilter])
+
+  const filteredTransactions = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+
+    if (!term) {
+      return transactions
+    }
+
+    return transactions.filter((transaction) => {
+      return (
+        transaction.description?.toLowerCase().includes(term) ||
+        transaction.categoryName.toLowerCase().includes(term) ||
+        transaction.tag?.toLowerCase().includes(term)
+      )
+    })
+  }, [searchTerm, transactions])
+
+  const totals = filteredTransactions.reduce(
     (summary, transaction) => {
       if (transaction.type === 'INCOME') {
         summary.income += transaction.amount
@@ -49,12 +85,14 @@ function TransactionsPage() {
 
   const balance = totals.income - totals.expense
 
-  useEffect(() => {
-    dispatch(fetchTransactions(0))
-  }, [dispatch])
-
   function handlePageChange(nextPage: number) {
-    dispatch(fetchTransactions(nextPage))
+    dispatch(
+      fetchTransactions({
+        page: nextPage,
+        type: typeFilter || undefined,
+        categoryId: categoryFilter ? Number(categoryFilter) : undefined,
+      }),
+    )
   }
 
   async function handleDelete(transactionId: number) {
@@ -102,6 +140,48 @@ function TransactionsPage() {
         </Link>
       </div>
 
+      <div className="filter-row">
+        <div className="field">
+          <label htmlFor="transaction-search">Buscar</label>
+          <input
+            id="transaction-search"
+            type="search"
+            placeholder="Descrição, categoria ou tag"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="transaction-type">Tipo</label>
+          <select
+            id="transaction-type"
+            value={typeFilter}
+            onChange={(event) =>
+              setTypeFilter(event.target.value as TransactionType | '')
+            }
+          >
+            <option value="">Todos</option>
+            <option value="INCOME">Receitas</option>
+            <option value="EXPENSE">Despesas</option>
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="transaction-category">Categoria</label>
+          <select
+            id="transaction-category"
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+          >
+            <option value="">Todas</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <section className="summary-grid">
         <article className="summary-card income-card">
           <span>Receitas nesta página</span>
@@ -127,20 +207,23 @@ function TransactionsPage() {
         <div className="panel-title-row">
           <div>
             <h2>Historico</h2>
-            <p>{totalElements} transação(ões) encontradas</p>
+            <p>
+              {filteredTransactions.length} de {totalElements} transação(ões)
+              encontradas
+            </p>
           </div>
         </div>
 
         {loading ? (
           <p className="empty-state">Carregando transacoes...</p>
-        ) : transactions.length === 0 ? (
+        ) : filteredTransactions.length === 0 ? (
           <div className="empty-state">
-            <strong>Nenhuma transacao registrada ainda.</strong>
-            <span>Comece adicionando sua primeira receita ou despesa.</span>
+            <strong>Nenhuma transacao encontrada.</strong>
+            <span>Altere os filtros ou cadastre uma nova transação.</span>
           </div>
         ) : (
           <div className="transactions-list">
-            {transactions.map((transaction) => (
+            {filteredTransactions.map((transaction) => (
               <article className="transaction-row" key={transaction.id}>
                 <div className="transaction-main">
                   <span
