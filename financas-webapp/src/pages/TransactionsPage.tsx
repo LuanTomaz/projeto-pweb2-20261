@@ -76,17 +76,17 @@ function TransactionsPage() {
       <section className="page-header finance-hero">
         <div>
           <span className="eyebrow">RF02</span>
-          <h1>Transacoes</h1>
+          <h1>Transações</h1>
           <p>
-            Receitas e despesas registradas em ordem cronologica, com categoria
+            Receitas e despesas registradas em ordem cronológica, com categoria
             e data para acompanhar sua vida financeira.
           </p>
         </div>
 
         <div className="hero-wallet" aria-hidden="true">
-          <span>Saldo da pagina</span>
+          <span>Saldo da página</span>
           <strong>{currencyFormatter.format(balance)}</strong>
-          <small>{totalElements} registros no historico</small>
+          <small>{totalElements} registros no histórico</small>
         </div>
       </section>
 
@@ -94,8 +94,8 @@ function TransactionsPage() {
 
       <div className="toolbar-row">
         <div>
-          <strong>Controle de movimentacoes</strong>
-          <span>Edite, exclua e acompanhe seus lancamentos recentes.</span>
+          <strong>Controle de movimentações</strong>
+          <span>Edite, exclua e acompanhe seus lançamentos recentes.</span>
         </div>
         <Link className="primary-action" to="/transactions/new">
           Nova transacao
@@ -104,19 +104,19 @@ function TransactionsPage() {
 
       <section className="summary-grid">
         <article className="summary-card income-card">
-          <span>Receitas nesta pagina</span>
+          <span>Receitas nesta página</span>
           <strong className="amount-income">
             {currencyFormatter.format(totals.income)}
           </strong>
         </article>
         <article className="summary-card expense-card">
-          <span>Despesas nesta pagina</span>
+          <span>Despesas nesta página</span>
           <strong className="amount-expense">
             {currencyFormatter.format(totals.expense)}
           </strong>
         </article>
         <article className="summary-card balance-card">
-          <span>Saldo da pagina</span>
+          <span>Saldo da página</span>
           <strong className={balance >= 0 ? 'amount-income' : 'amount-expense'}>
             {currencyFormatter.format(balance)}
           </strong>
@@ -127,7 +127,7 @@ function TransactionsPage() {
         <div className="panel-title-row">
           <div>
             <h2>Historico</h2>
-            <p>{totalElements} transacao(oes) encontradas</p>
+            <p>{totalElements} transação(ões) encontradas</p>
           </div>
         </div>
 

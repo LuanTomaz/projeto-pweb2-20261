@@ -1,7 +1,8 @@
-import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import type { AppDispatch, RootState } from './app/store'
+import type { RootState } from './app/store'
 import { logout } from './features/auth/authSlice'
+import DashboardPage from './pages/DashboardPage'
 import EditTransactionPage from './pages/EditTransactionPage'
 import LoginPage from './pages/LoginPage'
 import NewTransactionPage from './pages/NewTransactionPage'
@@ -10,31 +11,15 @@ import TransactionsPage from './pages/TransactionsPage'
 import ProtectedRoute from './routes/ProtectedRoute'
 import './App.css'
 
-function HomePage() {
-  const dispatch = useDispatch<AppDispatch>()
+function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   function handleLogout() {
     dispatch(logout())
+    navigate('/login')
   }
-
-  return (
-    <main>
-      <h1>Dashboard Financeiro</h1>
-
-      {user && <p>Olá, {user.name}!</p>}
-
-      <p>Usuário autenticado.</p>
-
-      <button type="button" onClick={handleLogout}>
-        Sair
-      </button>
-    </main>
-  )
-}
-
-function AppLayout({ children }: { children: React.ReactNode }) {
-  const user = useSelector((state: RootState) => state.auth.user)
 
   return (
     <>
@@ -46,7 +31,14 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/transactions">Transacoes</NavLink>
         </nav>
-        {user && <span className="user-chip">{user.name}</span>}
+        {user && (
+          <div className="user-controls">
+            <span className="user-chip">{user.name}</span>
+            <button className="logout-button" type="button" onClick={handleLogout}>
+              Sair
+            </button>
+          </div>
+        )}
       </header>
       {children}
     </>
@@ -69,7 +61,7 @@ function App() {
           path="/"
           element={
             <PrivatePage>
-              <HomePage />
+              <DashboardPage />
             </PrivatePage>
           }
         />
