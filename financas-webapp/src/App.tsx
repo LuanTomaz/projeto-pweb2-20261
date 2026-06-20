@@ -1,6 +1,7 @@
-import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from './app/store'
+import { logout } from './features/auth/authSlice'
 import DashboardPage from './pages/DashboardPage'
 import EditTransactionPage from './pages/EditTransactionPage'
 import LoginPage from './pages/LoginPage'
@@ -12,6 +13,13 @@ import './App.css'
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    dispatch(logout())
+    navigate('/login')
+  }
 
   return (
     <>
@@ -23,7 +31,14 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/transactions">Transacoes</NavLink>
         </nav>
-        {user && <span className="user-chip">{user.name}</span>}
+        {user && (
+          <div className="user-controls">
+            <span className="user-chip">{user.name}</span>
+            <button className="logout-button" type="button" onClick={handleLogout}>
+              Sair
+            </button>
+          </div>
+        )}
       </header>
       {children}
     </>
