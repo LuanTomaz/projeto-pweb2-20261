@@ -49,8 +49,8 @@ function DashboardPage() {
           <h1>Dashboard Financeiro</h1>
           <p>
             {user
-              ? `Ola, ${user.name}. Acompanhe seu saldo, receitas e despesas do mes.`
-              : 'Acompanhe seu saldo, receitas e despesas do mes.'}
+              ? `Olá, ${user.name}. Acompanhe seu saldo, receitas e despesas do mês.`
+              : 'Acompanhe seu saldo, receitas e despesas do mês.'}
           </p>
         </div>
 
@@ -58,7 +58,7 @@ function DashboardPage() {
           <span>Saldo atual</span>
           <strong>{currencyFormatter.format(balance)}</strong>
           <small>
-            {recentTransactions.length} movimentacoes recentes carregadas
+            {recentTransactions.length} movimentações recentes carregadas
           </small>
         </div>
       </section>
@@ -91,8 +91,8 @@ function DashboardPage() {
       <section className="content-panel dashboard-panel">
         <div className="panel-title-row">
           <div>
-            <h2>Transacoes recentes</h2>
-            <p>As 5 movimentacoes mais recentes registradas.</p>
+            <h2>Transações recentes</h2>
+            <p>As 5 movimentações mais recentes registradas.</p>
           </div>
           <Link className="secondary-action" to="/transactions">
             Ver todas
@@ -100,13 +100,13 @@ function DashboardPage() {
         </div>
 
         {loading ? (
-          <p className="empty-state">Carregando transacoes...</p>
+          <p className="empty-state">Carregando transações...</p>
         ) : recentTransactions.length === 0 ? (
           <div className="empty-state">
-            <strong>Nenhuma transacao registrada ainda.</strong>
+            <strong>Nenhuma transação registrada ainda.</strong>
             <span>Comece criando sua primeira receita ou despesa.</span>
             <Link className="primary-action" to="/transactions/new">
-              Nova transacao
+              Nova transação
             </Link>
           </div>
         ) : (

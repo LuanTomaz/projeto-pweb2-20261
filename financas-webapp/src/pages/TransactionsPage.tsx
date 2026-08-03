@@ -58,7 +58,7 @@ function TransactionsPage() {
   }
 
   async function handleDelete(transactionId: number) {
-    const confirmed = window.confirm('Deseja excluir esta transacao?')
+    const confirmed = window.confirm('Deseja excluir esta transação?')
 
     if (!confirmed) {
       return
@@ -98,7 +98,7 @@ function TransactionsPage() {
           <span>Edite, exclua e acompanhe seus lançamentos recentes.</span>
         </div>
         <Link className="primary-action" to="/transactions/new">
-          Nova transacao
+          Nova transação
         </Link>
       </div>
 
@@ -126,16 +126,16 @@ function TransactionsPage() {
       <section className="content-panel">
         <div className="panel-title-row">
           <div>
-            <h2>Historico</h2>
+            <h2>Histórico</h2>
             <p>{totalElements} transação(ões) encontradas</p>
           </div>
         </div>
 
         {loading ? (
-          <p className="empty-state">Carregando transacoes...</p>
+          <p className="empty-state">Carregando transações...</p>
         ) : transactions.length === 0 ? (
           <div className="empty-state">
-            <strong>Nenhuma transacao registrada ainda.</strong>
+            <strong>Nenhuma transação registrada ainda.</strong>
             <span>Comece adicionando sua primeira receita ou despesa.</span>
           </div>
         ) : (
@@ -205,14 +205,14 @@ function TransactionsPage() {
               Anterior
             </button>
             <span>
-              Pagina {page + 1} de {totalPages}
+              Página {page + 1} de {totalPages}
             </span>
             <button
               type="button"
               disabled={page >= totalPages - 1 || loading}
               onClick={() => handlePageChange(page + 1)}
             >
-              Proxima
+              Próxima
             </button>
           </div>
         )}

@@ -21,19 +21,12 @@ function LoginPage() {
     event.preventDefault()
 
     if (!username.trim() || !password.trim()) {
-      setFormError('Preencha email e senha.')
-      return
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    if (!emailRegex.test(username)) {
-      setFormError('Informe um email válido.')
+      setFormError('Preencha usuário e senha para continuar.')
       return
     }
 
     if (password.length < 6) {
-      setFormError('A senha deve possuir pelo menos 6 caracteres.')
+      setFormError('A senha deve ter pelo menos 6 caracteres.')
       return
     }
 
@@ -49,14 +42,17 @@ function LoginPage() {
 
   return (
     <main>
-      <h1>Login</h1>
+      <section className="content-panel form-panel">
+        <h1>Entrar na conta</h1>
+        <p>Use seu usuário e senha para acessar o painel financeiro.</p>
+      </section>
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Email</label>
+          <label htmlFor="username">Usuário</label>
           <input
             id="username"
-            type="email"
+            type="text"
             required
             value={username}
             onChange={(event) => setUsername(event.target.value)}
@@ -76,11 +72,11 @@ function LoginPage() {
 
         {(formError || error) && <p>{formError || error}</p>}
 
-        <button type="submit" disabled={loading}>
+        <button className="primary-action" type="submit" disabled={loading}>
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
         <p>
-          Não possui conta? <Link to="/register">Cadastre-se</Link>
+          Ainda não possui conta? <Link to="/register">Criar conta</Link>
         </p>
       </form>
     </main>

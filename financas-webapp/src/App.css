@@ -578,6 +578,11 @@ a:focus-visible {
   color: #be4636;
 }
 
+.feedback-info {
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+
 main:not(.app-shell) {
   display: grid;
   gap: 22px;
@@ -595,6 +600,11 @@ main:not(.app-shell) form {
   display: grid;
   gap: 16px;
   padding: 24px;
+}
+
+main:not(.app-shell) .content-panel {
+  padding: 22px 24px;
+  text-align: left;
 }
 
 main:not(.app-shell) form div {

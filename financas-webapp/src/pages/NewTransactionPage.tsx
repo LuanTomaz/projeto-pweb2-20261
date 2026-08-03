@@ -6,19 +6,28 @@ import type { AppDispatch, RootState } from '../app/store'
 import {
   createTransaction,
   fetchCategories,
+  fetchTransactions,
 } from '../features/transactions/transactionsSlice'
 import type { TransactionType } from '../features/transactions/transactionsSlice'
+import { fetchSpendingLimits } from '../features/limits/limitsSlice'
+import { evaluateTransactionAgainstLimits } from '../features/transactions/transactionLimitHelpers'
 
 function getToday() {
   return new Date().toISOString().slice(0, 10)
 }
 
+const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+})
+
 function NewTransactionPage() {
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
-  const { categories, categoriesLoading, creating, error } = useSelector(
+  const { categories, categoriesLoading, creating, error, transactions } = useSelector(
     (state: RootState) => state.transactions,
   )
+  const spendingLimits = useSelector((state: RootState) => state.limits.items)
 
   const [amount, setAmount] = useState('')
   const [type, setType] = useState<TransactionType>('EXPENSE')
@@ -29,7 +38,9 @@ function NewTransactionPage() {
   const [formError, setFormError] = useState('')
 
   useEffect(() => {
-    dispatch(fetchCategories())
+    void dispatch(fetchCategories())
+    void dispatch(fetchSpendingLimits())
+    void dispatch(fetchTransactions({ page: 0, size: 1000 }))
   }, [dispatch])
 
   async function handleSubmit(event: SyntheticEvent) {
@@ -49,6 +60,22 @@ function NewTransactionPage() {
 
     setFormError('')
 
+    if (type === 'EXPENSE') {
+      const evaluation = evaluateTransactionAgainstLimits({
+        transactions,
+        limits: spendingLimits,
+        categoryId: Number(categoryId),
+        amount: numericAmount,
+        type,
+        date,
+      })
+
+      if (!evaluation.isAllowed) {
+        setFormError(evaluation.reason || 'Este gasto excede o limite configurado.')
+        return
+      }
+    }
+
     const result = await dispatch(
       createTransaction({
         amount: numericAmount,
@@ -65,6 +92,18 @@ function NewTransactionPage() {
     }
   }
 
+  const limitInsight =
+    type === 'EXPENSE'
+      ? evaluateTransactionAgainstLimits({
+          transactions,
+          limits: spendingLimits,
+          categoryId: Number(categoryId) || 0,
+          amount: Number(amount) || 0,
+          type,
+          date,
+        })
+      : null
+
   return (
     <main className="app-shell">
       <section className="page-header">
@@ -73,7 +112,7 @@ function NewTransactionPage() {
           <h1>Registrar transação</h1>
           <p>
             Cadastre uma receita ou despesa com valor, categoria, data e
-            detalhes opcionais.
+            detalhes opcionais. O app também avisa se o lançamento ultrapassa o limite configurado.
           </p>
         </div>
 
@@ -170,7 +209,7 @@ function NewTransactionPage() {
             </div>
 
             <div className="field">
-              <label htmlFor="tag">Tag</label>
+              <label htmlFor="tag">Etiqueta</label>
               <input
                 id="tag"
                 type="text"
@@ -194,6 +233,14 @@ function NewTransactionPage() {
 
           {(formError || error) && (
             <p className="feedback feedback-error">{formError || error}</p>
+          )}
+
+          {type === 'EXPENSE' && limitInsight && limitInsight.limitAmount !== null && (
+            <div className={`feedback ${limitInsight.isAllowed ? 'feedback-info' : 'feedback-error'}`}>
+              {limitInsight.isAllowed
+                ? `Restante do limite: ${currencyFormatter.format(limitInsight.remainingAmount)}`
+                : `Este lançamento excede o limite restante em ${currencyFormatter.format(limitInsight.limitAmount - limitInsight.remainingAmount)}.`}
+            </div>
           )}
 
           <button

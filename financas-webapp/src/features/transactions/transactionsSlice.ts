@@ -362,8 +362,10 @@ const transactionsSlice = createSlice({
         state.creating = true
         state.error = null
       })
-      .addCase(createTransaction.fulfilled, (state) => {
+      .addCase(createTransaction.fulfilled, (state, action) => {
         state.creating = false
+        state.transactions = [action.payload, ...state.transactions]
+        state.totalElements = state.totalElements + 1
       })
       .addCase(createTransaction.rejected, (state, action) => {
         state.creating = false

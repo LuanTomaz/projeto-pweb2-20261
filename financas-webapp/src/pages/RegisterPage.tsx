@@ -22,24 +22,17 @@ function RegisterPage() {
     event.preventDefault()
 
     if (!name.trim() || !username.trim() || !password.trim()) {
-      setFormError('Preencha nome, email e senha.')
+      setFormError('Preencha nome, usuário e senha para continuar.')
       return
     }
 
     if (name.trim().length < 3) {
-      setFormError('O nome deve possuir pelo menos 3 caracteres.')
-      return
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    if (!emailRegex.test(username)) {
-      setFormError('Informe um email válido.')
+      setFormError('O nome deve ter pelo menos 3 caracteres.')
       return
     }
 
     if (password.length < 6) {
-      setFormError('A senha deve possuir pelo menos 6 caracteres.')
+      setFormError('A senha deve ter pelo menos 6 caracteres.')
       return
     }
 
@@ -55,7 +48,10 @@ function RegisterPage() {
 
   return (
     <main>
-      <h1>Cadastro</h1>
+      <section className="content-panel form-panel">
+        <h1>Criar conta</h1>
+        <p>Cadastre-se para organizar receitas, despesas e limites por categoria.</p>
+      </section>
 
       <form onSubmit={handleSubmit}>
         <div>
@@ -71,10 +67,10 @@ function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="username">Email</label>
+          <label htmlFor="username">Usuário</label>
           <input
             id="username"
-            type="email"
+            type="text"
             required
             value={username}
             onChange={(event) => setUsername(event.target.value)}
@@ -95,11 +91,11 @@ function RegisterPage() {
 
         {(formError || error) && <p>{formError || error}</p>}
 
-        <button type="submit" disabled={loading}>
+        <button className="primary-action" type="submit" disabled={loading}>
           {loading ? 'Cadastrando...' : 'Cadastrar'}
         </button>
         <p>
-          Já possui conta? <Link to="/login">Entrar</Link>
+          Já possui conta? <Link to="/login">Fazer login</Link>
         </p>
       </form>
     </main>
