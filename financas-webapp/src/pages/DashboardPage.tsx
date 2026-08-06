@@ -89,6 +89,9 @@ function DashboardPage() {
       </section>
 
       <section className="content-panel dashboard-panel">
+        <h2>Cotações do dia</h2>
+        {/* @ts-ignore */}
+        <quotes-widget></quotes-widget>
         <div className="panel-title-row">
           <div>
             <h2>Transações recentes</h2>
