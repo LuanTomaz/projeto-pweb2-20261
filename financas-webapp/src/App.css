@@ -807,6 +807,23 @@ main:not(.app-shell) form p {
   font-size: 14px;
 }
 
+.filter-row {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  margin: 0;
+}
+
+.filter-row .field {
+  display: grid;
+  gap: 8px;
+}
+
+.filter-row input,
+.filter-row select {
+  width: 100%;
+}
+
 .summary-card {
   min-height: 116px;
   overflow: hidden;

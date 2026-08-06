@@ -40,6 +40,8 @@ interface TransactionsPageResponse {
 interface FetchTransactionsParams {
   page?: number
   size?: number
+  type?: TransactionType
+  categoryId?: number
 }
 
 export interface CreateTransactionData {
@@ -173,6 +175,16 @@ export const fetchTransactions = createAsyncThunk<
         size: String(size),
         sort: 'date,desc',
       })
+
+      if (typeof params !== 'number') {
+        if (params.type) {
+          queryParams.set('type', params.type)
+        }
+
+        if (params.categoryId !== undefined) {
+          queryParams.set('categoryId', String(params.categoryId))
+        }
+      }
 
       const response = await fetch(`${API_URL}/transactions?${queryParams}`, {
         headers: authHeaders(token),

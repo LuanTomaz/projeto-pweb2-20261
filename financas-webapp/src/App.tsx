@@ -9,6 +9,8 @@ import NewTransactionPage from './pages/NewTransactionPage'
 import RegisterPage from './pages/RegisterPage'
 import TransactionsPage from './pages/TransactionsPage'
 import LimitsPage from './pages/LimitsPage'
+import GoalsPage from './pages/GoalsPage'
+import NewGoalPage from './pages/NewGoalPage'
 import ProtectedRoute from './routes/ProtectedRoute'
 import './App.css'
 
@@ -32,6 +34,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/transactions">Transacoes</NavLink>
           <NavLink to="/limits">Limites</NavLink>
+          <NavLink to="/goals">Metas</NavLink>
         </nav>
         {user && (
           <div className="user-controls">
@@ -100,6 +103,24 @@ function App() {
           element={
             <PrivatePage>
               <LimitsPage />
+            </PrivatePage>
+          }
+        />
+
+        <Route
+          path="/goals"
+          element={
+            <PrivatePage>
+              <GoalsPage />
+            </PrivatePage>
+          }
+        />
+
+        <Route
+          path="/goals/new"
+          element={
+            <PrivatePage>
+              <NewGoalPage />
             </PrivatePage>
           }
         />
